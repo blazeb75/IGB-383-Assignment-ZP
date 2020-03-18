@@ -123,10 +123,37 @@ public class NavigationAgent : MonoBehaviour {
 
 
     //Greedy Search
-    public List<int> GreedySearch(int currentNode, int goal, List<int> path) {
-
-        //Code here
-
-        return path;
+    public List<int> GreedySearch(int currentNode, int goal, List<int> path)
+    {
+        List<int> greedyChildren = new List<int>();
+        //Get the children of the current node
+        for (int i = 0; i < graphNodes.graphNodes[currentNode].GetComponent<LinkedNodes>().linkedNodesIndex.Length; i++)
+        {
+            greedyChildren.Add(graphNodes.graphNodes[currentNode].GetComponent<LinkedNodes>().linkedNodesIndex[i]);
+        }
+        //Sort by heuristic
+        greedyChildren.Sort((a, b) => Heuristic(a, goal).CompareTo(Heuristic(b, goal)));
+        //For each child
+        for(int i = 0; i < greedyChildren.Count; i++)
+        {
+            //If the child is not painted, paint it
+            if (!greedyPaintList.Contains(greedyChildren[i]))
+            {
+                greedyPaintList.Add(greedyChildren[i]);
+                //Check if the goal has been reached
+                if(greedyChildren[i] == goal)
+                {
+                    path.Add(greedyChildren[i]);
+                    return path;
+                }
+                path = GreedySearch(greedyChildren[i], goal, path);
+                if(path.Count != 0)
+                {
+                    path.Add(greedyChildren[i]);
+                    return path;
+                }
+            }
+        }
+    return path;
     }
 }
