@@ -10,6 +10,7 @@ public class NavigationAgent : MonoBehaviour {
     public WaypointGraph graphNodes;
     public List<int> openList = new List<int>();
     public List<int> closedList = new List<int>();
+    public Dictionary<int, int> cameFrom = new Dictionary<int, int>();
     public List<int> currentPath = new List<int>();
     public List<int> greedyPaintList = new List<int>();
     public int currentPathIndex = 0;
@@ -26,11 +27,100 @@ public class NavigationAgent : MonoBehaviour {
 
     //A-Star Search
     public List<int> AStarSearch(int start, int goal) {
-        
-        //Code here
 
+        //Code here
+        //Clear everything
+        openList.Clear();
+        closedList.Clear();
+        cameFrom.Clear();
+
+        //Begin
+        openList.Add(start);
+        float gScore = 0;
+        float fScore = gScore + Heuristic(start, goal);
+        while(openList.Count > 0)
+        {
+            int currentNode = BestOpenListFScore(start, goal);
+            //Found the end, reconstruct entire path and return
+            if (currentNode == goal)
+            {
+                return ReconstructPath(cameFrom, currentNode);
+            }
+            openList.Remove(currentNode);
+            closedList.Add(currentNode);
+            //For each of the nodes connected to the current node
+            for (int i = 0; i < graphNodes.graphNodes[currentNode].GetComponent<LinkedNodes>().linkedNodesIndex.Length; i++)
+            {
+                int thisNeighbourNode = graphNodes.graphNodes[currentNode].GetComponent<LinkedNodes>().linkedNodesIndex[i];
+
+                //Ignore if neighbour node is attached
+                if (!closedList.Contains(thisNeighbourNode))
+                {
+                    //Distance from current to the nextNode
+                    float tentativeGScore = Heuristic(start, currentNode) + Heuristic(currentNode, thisNeighbourNode);
+
+                    //Check to see if in openList or if new GScore is more sensible
+                    if (!openList.Contains(thisNeighbourNode) || tentativeGScore < gScore)
+                        openList.Add(thisNeighbourNode);
+
+                    //Add to Dictionary - this neighbour came from this parent
+                    if (!cameFrom.ContainsKey(thisNeighbourNode))
+                        cameFrom.Add(thisNeighbourNode, currentNode);
+
+                    gScore = tentativeGScore;
+                    fScore = Heuristic(start, thisNeighbourNode) + Heuristic(thisNeighbourNode, goal);
+
+                }
+
+            }
+
+        }
         return null;
     }
+
+    public float Heuristic(int a, int b)
+    {
+        return Vector3.Distance(graphNodes.graphNodes[a].transform.position, graphNodes.graphNodes[b].transform.position);
+    }
+
+    public int BestOpenListFScore(int start, int goal)
+    {
+
+        int bestIndex = 0;
+
+        for (int i = 0; i < openList.Count; i++)
+        {
+
+            if ((Heuristic(openList[i], start) + Heuristic(openList[i], goal)) < (Heuristic(openList[bestIndex], start) + Heuristic(openList[bestIndex], goal)))
+            {
+                bestIndex = i;
+            }
+        }
+
+        int bestNode = openList[bestIndex];
+        return bestNode;
+    }
+
+    public List<int> ReconstructPath(Dictionary<int, int> CF, int current)
+    {
+
+        List<int> finalPath = new List<int>();
+
+        finalPath.Add(current);
+
+        while (CF.ContainsKey(current))
+        {
+
+            current = CF[current];
+
+            finalPath.Add(current);
+        }
+
+        finalPath.Reverse();
+
+        return finalPath;
+    }
+
 
     //Greedy Search
     public List<int> GreedySearch(int currentNode, int goal, List<int> path) {

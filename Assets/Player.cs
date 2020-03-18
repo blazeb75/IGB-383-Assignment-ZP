@@ -14,7 +14,7 @@ public class Player : NavigationAgent {
 	// Update is called once per frame
 	void Update () {
 
-		//Right-click - Move via Greedy
+		//Left-click - Move via Greedy
 		if (Input.GetMouseButtonDown (0)) {
 
             //Reset current path and add first node - needs to be done here because of recursive function of greedy
@@ -31,10 +31,10 @@ public class Player : NavigationAgent {
 			currentPath.RemoveAt (currentPath.Count-1);
 		}
 
-		//Left-click - Move via A*
+		//Right-click - Move via A*
 		else if (Input.GetMouseButtonDown (1)) {
 
-            //currentPath = AStarSearch (currentPath[currentPathIndex], findClosestWaypoint());
+            currentPath = AStarSearch (currentPath[currentPathIndex], findClosestWaypoint());
 			currentPathIndex = 0;
 		}
 	
