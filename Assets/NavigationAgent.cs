@@ -133,15 +133,22 @@ public class NavigationAgent : MonoBehaviour {
         }
         //Sort by heuristic
         greedyChildren.Sort((a, b) => Heuristic(a, goal).CompareTo(Heuristic(b, goal)));
-        //For each child
-        for(int i = 0; i < greedyChildren.Count; i++)
+
+        //If the current node is not painted, paint it
+        if (!greedyPaintList.Contains(currentNode))
         {
-            //If the child is not painted, paint it
+            greedyPaintList.Add(currentNode);
+        }
+
+        //For each child
+        for (int i = 0; i < greedyChildren.Count; i++)
+        {
+            //If the child is not painted, search it
+            //The new iteration of GreedySearch will paint the node
             if (!greedyPaintList.Contains(greedyChildren[i]))
             {
-                greedyPaintList.Add(greedyChildren[i]);
                 //Check if the goal has been reached
-                if(greedyChildren[i] == goal)
+                if (greedyChildren[i] == goal)
                 {
                     path.Add(greedyChildren[i]);
                     return path;

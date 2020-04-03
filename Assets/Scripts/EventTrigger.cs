@@ -4,39 +4,34 @@ using UnityEngine;
 
 public class EventTrigger : MonoBehaviour
 {
-    public enum TriggerState
-    {
-        Patrol,
-        Hide,
-        Attack
-    }
     [Header("Settings")]
-    public TriggerState enter;
-    public TriggerState exit;
-    [Header("Exposed Variables (Do not edit)")]
+    public enemyState enter;
+    public enemyState exit;
+    [Tooltip("Populate with the enemies this trigger affects. Leave blank to affect all enemies.")]
     public Enemy[] enemies;
 
     private void Start()
     {
-        enemies = FindObjectsOfType<Enemy>();
+        if (enemies.Length == 0)
+            enemies = FindObjectsOfType<Enemy>();
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            ChangeEnemyStates((int)enter);
+            ChangeEnemyStates(enter);
         }
     }
     private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            ChangeEnemyStates((int)exit);
+            ChangeEnemyStates(exit);
         }
     }
 
-    void ChangeEnemyStates(int state)
+    void ChangeEnemyStates(enemyState state)
     {
         foreach(Enemy enemy in enemies)
         {
